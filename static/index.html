@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ENGRAM Memory Reliability</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="command-bar" aria-label="ENGRAM controls">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <div>
+            <h1>ENGRAM</h1>
+            <p>AI memory reliability</p>
+          </div>
+        </div>
+
+        <div class="system-state" aria-live="polite">
+          <span id="apiStatus" class="status-dot dormant"></span>
+          <span id="apiStatusText">connecting</span>
+          <span class="system-divider"></span>
+          <span id="revisionLine">ledger warming</span>
+        </div>
+
+        <div class="top-actions">
+          <button id="runDemo" class="primary" type="button">Run ledger demo</button>
+          <button id="resetDemo" class="secondary" type="button">Reset</button>
+        </div>
+      </header>
+
+      <section class="signal-grid" aria-label="Memory telemetry">
+        <article class="signal-card">
+          <span class="signal-label">Belief inventory</span>
+          <strong id="beliefCount">0</strong>
+          <span id="activeDormantLine">0 active / 0 dormant</span>
+        </article>
+        <article class="signal-card">
+          <span class="signal-label">Revision trail</span>
+          <strong id="revisionCount">0</strong>
+          <span id="contradictionCount">0 contradictions</span>
+        </article>
+        <article class="signal-card">
+          <span class="signal-label">Ledger events</span>
+          <strong id="eventCount">0</strong>
+          <span id="latestEventLine">no events</span>
+        </article>
+        <article class="signal-card signal-card-accent">
+          <span class="signal-label">Provenance</span>
+          <strong id="provenanceScore">0%</strong>
+          <span>source coverage</span>
+        </article>
+      </section>
+
+      <section class="timeline-strip" aria-label="Memory evidence flow">
+        <div>
+          <span class="eyebrow">Evidence Flow</span>
+          <strong id="eventRhythmLabel">quiet</strong>
+        </div>
+        <div id="eventRhythm" class="event-bars"></div>
+      </section>
+
+      <section class="workbench" aria-label="ENGRAM memory workspace">
+        <aside class="command-panel" aria-label="Memory operations">
+          <header class="panel-heading">
+            <span>Control Plane</span>
+            <strong>ingest / query / decay</strong>
+          </header>
+
+          <form id="ingestForm" class="operation-form">
+            <label for="memoryText">Ingest memory</label>
+            <textarea
+              id="memoryText"
+              name="memoryText"
+              rows="7"
+              placeholder="API rate limit is 80 req/min"
+              required
+            ></textarea>
+            <div class="inline-fields">
+              <input id="sourceText" name="sourceText" type="text" placeholder="source" value="operator" />
+              <button type="submit" class="primary">Ingest</button>
+            </div>
+          </form>
+
+          <form id="queryForm" class="operation-form">
+            <label for="queryText">Query memory</label>
+            <textarea
+              id="queryText"
+              name="queryText"
+              rows="4"
+              placeholder="what changed your mind?"
+              required
+            ></textarea>
+            <button type="submit" class="primary">Query</button>
+          </form>
+
+          <form id="decayForm" class="decay-form" aria-label="Decay memories">
+            <label for="decayDays">Decay window</label>
+            <input id="decayDays" name="decayDays" type="number" min="1" max="365" value="30" />
+            <button type="submit" class="secondary">Apply</button>
+          </form>
+        </aside>
+
+        <section class="cortex-panel" aria-label="Belief reliability topology">
+          <header class="panel-toolbar">
+            <div>
+              <span class="eyebrow">Topology</span>
+              <h2>Memory Reliability Map</h2>
+            </div>
+            <div class="legend" aria-label="Lifecycle legend">
+              <span><i class="life active"></i>active</span>
+              <span><i class="life dormant"></i>dormant</span>
+              <span><i class="life contradiction"></i>conflict</span>
+              <span><i class="life revised"></i>revised</span>
+              <span><i class="life restored"></i>restored</span>
+            </div>
+          </header>
+
+          <div class="graph-stage">
+            <canvas id="memoryGraph" width="1100" height="720" aria-label="Memory graph"></canvas>
+            <div class="scene-hud" aria-hidden="true">
+              <span>Memory substrate</span>
+              <strong id="sceneMode">waiting for traces</strong>
+            </div>
+            <div id="memoryPressure" class="graph-readout">awaiting telemetry</div>
+          </div>
+
+          <div id="selectedMemory" class="memory-inspector" aria-live="polite">
+            <span class="muted">No belief selected</span>
+          </div>
+
+          <section class="belief-table" aria-label="Belief table">
+            <header>
+              <div>
+                <span class="eyebrow">Inventory</span>
+                <h3>Current Beliefs</h3>
+              </div>
+              <div class="table-actions">
+                <span id="beliefTableMeta">0 records</span>
+                <div id="beliefFilters" class="segment-control" aria-label="Filter beliefs">
+                  <button type="button" class="is-active" data-filter="all">All</button>
+                  <button type="button" data-filter="active">Active</button>
+                  <button type="button" data-filter="revised">Revised</button>
+                  <button type="button" data-filter="dormant">Dormant</button>
+                </div>
+              </div>
+            </header>
+            <div id="beliefTable" class="belief-rows"></div>
+          </section>
+        </section>
+
+        <aside class="ledger-panel" aria-label="Ledger events and responses">
+          <section class="query-result" aria-label="Query result">
+            <header class="panel-heading">
+              <span>Response</span>
+              <strong>latest query</strong>
+            </header>
+            <pre id="queryResult">No query result.</pre>
+          </section>
+
+          <section class="revision-panel" aria-label="Latest revision">
+            <header class="panel-heading">
+              <span>Revision</span>
+              <strong>latest change</strong>
+            </header>
+            <div id="latestRevision" class="revision-detail">No revisions recorded.</div>
+          </section>
+
+          <section class="health-panel" aria-label="Memory health">
+            <header class="panel-heading">
+              <span>Memory Health</span>
+              <strong id="healthVerdict">waiting</strong>
+            </header>
+            <div class="health-stack">
+              <div class="health-row">
+                <span>Integrity</span>
+                <strong id="integrityScore">0%</strong>
+                <i><b id="integrityBar"></b></i>
+              </div>
+              <div class="health-row">
+                <span>Drift pressure</span>
+                <strong id="driftScore">0%</strong>
+                <i><b id="driftBar"></b></i>
+              </div>
+              <div class="health-row">
+                <span>Evidence coverage</span>
+                <strong id="coverageScore">0%</strong>
+                <i><b id="coverageBar"></b></i>
+              </div>
+            </div>
+          </section>
+
+          <section class="event-log" aria-label="Ledger events">
+            <header class="panel-heading">
+              <span>Ledger Stream</span>
+              <strong id="streamHealth">quiet</strong>
+            </header>
+            <ol id="eventList"></ol>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

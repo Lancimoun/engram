@@ -563,9 +563,9 @@ class MemoryObservatory {
     this.sceneMode = document.querySelector("#sceneMode");
     this.reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
     this.scene = new this.THREE.Scene();
-    this.scene.fog = new this.THREE.FogExp2(0x090d12, 0.022);
-    this.camera = new this.THREE.PerspectiveCamera(42, 1, 0.1, 1000);
-    this.camera.position.set(0, 5.6, 13.6);
+    this.scene.fog = new this.THREE.FogExp2(0x070a0f, 0.028);
+    this.camera = new this.THREE.PerspectiveCamera(46, 1, 0.1, 1000);
+    this.camera.position.set(0, 2.4, 9.2);
     this.renderer = new this.THREE.WebGLRenderer({
       canvas,
       antialias: true,
@@ -616,21 +616,21 @@ class MemoryObservatory {
       materials[life] = new this.THREE.MeshStandardMaterial({
         color,
         emissive: color,
-        emissiveIntensity: isDormant ? 0.08 : isConflict ? 0.28 : 0.16,
-        roughness: 0.72,
-        metalness: 0.16,
+        emissiveIntensity: isDormant ? 0.25 : isConflict ? 0.95 : 0.62,
+        roughness: 0.36,
+        metalness: 0.1,
         transparent: true,
-        opacity: isDormant ? 0.5 : 0.9,
+        opacity: isDormant ? 0.55 : 1,
       });
     });
     materials.core = new this.THREE.MeshStandardMaterial({
-      color: "#dfe7f1",
+      color: "#cfeee6",
       emissive: "#5ed7bd",
-      emissiveIntensity: 0.1,
-      roughness: 0.64,
-      metalness: 0.18,
+      emissiveIntensity: 0.45,
+      roughness: 0.42,
+      metalness: 0.2,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.85,
     });
     materials.halo = new this.THREE.MeshBasicMaterial({
       color: "#5ed7bd",
@@ -655,11 +655,11 @@ class MemoryObservatory {
 
   buildGeometries() {
     return {
-      node: new this.THREE.BoxGeometry(0.34, 0.09, 0.34),
-      core: new this.THREE.BoxGeometry(2.4, 0.14, 1.36),
-      halo: new this.THREE.RingGeometry(0.29, 0.34, 48),
+      node: new this.THREE.IcosahedronGeometry(0.3, 1),
+      core: new this.THREE.IcosahedronGeometry(1.0, 2),
+      halo: new this.THREE.RingGeometry(0.42, 0.54, 56),
       substrate: new this.THREE.PlaneGeometry(9.7, 6.1),
-      pulse: new this.THREE.BoxGeometry(0.14, 0.05, 0.14),
+      pulse: new this.THREE.SphereGeometry(0.09, 12, 12),
     };
   }
 
@@ -675,52 +675,72 @@ class MemoryObservatory {
   }
 
   buildCore() {
+    // The "mind core" — a glowing central node the beliefs orbit and link to.
     this.core = new this.THREE.Mesh(this.geometries.core, this.materials.core);
-    this.core.position.y = 0.02;
     this.root.add(this.core);
 
-    const edges = new this.THREE.LineSegments(
+    const wire = new this.THREE.LineSegments(
       new this.THREE.EdgesGeometry(this.geometries.core),
-      new this.THREE.LineBasicMaterial({
-        color: "#e7edf5",
+      new this.THREE.LineBasicMaterial({ color: "#9df3e2", transparent: true, opacity: 0.34 }),
+    );
+    this.core.add(wire);
+    this.coreEdges = wire;
+
+    const glow = new this.THREE.Mesh(
+      new this.THREE.SphereGeometry(1.72, 32, 32),
+      new this.THREE.MeshBasicMaterial({
+        color: "#5ed7bd",
         transparent: true,
-        opacity: 0.22,
+        opacity: 0.07,
+        side: this.THREE.BackSide,
+        depthWrite: false,
       }),
     );
-    edges.position.copy(this.core.position);
-    this.root.add(edges);
-    this.coreEdges = edges;
-
-    [0, 1, 2].forEach((index) => {
-      const layer = new this.THREE.Mesh(this.geometries.substrate, this.materials.surface.clone());
-      layer.rotation.x = -Math.PI / 2;
-      layer.position.y = -0.24 - index * 0.16;
-      layer.position.z = index * 0.22;
-      layer.material.opacity = 0.18 - index * 0.04;
-      this.surfaceLayer.add(layer);
-    });
+    this.root.add(glow);
+    this.coreGlow = glow;
   }
 
   buildReferenceGrid() {
-    const grid = new this.THREE.GridHelper(11.6, 24, 0x344154, 0x1b2531);
-    grid.position.y = -0.42;
-    grid.material.transparent = true;
-    grid.material.opacity = 0.32;
-    this.surfaceLayer.add(grid);
-
-    const laneX = [-4.4, -2.2, 0, 2.2, 4.4];
-    const laneColors = [COLORS.active, COLORS.restored, COLORS.revised, COLORS.contradiction, COLORS.dormant];
-    laneX.forEach((x, index) => {
-      const geometry = new this.THREE.BufferGeometry().setFromPoints([
-        new this.THREE.Vector3(x, -0.18, -3.7),
-        new this.THREE.Vector3(x, -0.18, 3.7),
-      ]);
-      const material = new this.THREE.LineBasicMaterial({
-        color: laneColors[index],
+    // Starfield backdrop — the stage should read as a memory cortex, never an
+    // empty void, even with only a few beliefs on screen.
+    const count = 560;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i += 1) {
+      const r = 15 + Math.random() * 34;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 40;
+      positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta) - 8;
+    }
+    const geo = new this.THREE.BufferGeometry();
+    geo.setAttribute("position", new this.THREE.BufferAttribute(positions, 3));
+    this.stars = new this.THREE.Points(
+      geo,
+      new this.THREE.PointsMaterial({
+        color: "#9fb4d6",
+        size: 0.07,
         transparent: true,
-        opacity: 0.24,
-      });
-      this.surfaceLayer.add(new this.THREE.Line(geometry, material));
+        opacity: 0.6,
+        depthWrite: false,
+        sizeAttenuation: true,
+      }),
+    );
+    this.scene.add(this.stars);
+
+    // Two faint orbit rings to ground the constellation without a diagram grid.
+    [3.3, 4.6].forEach((radius, index) => {
+      const ring = new this.THREE.Mesh(
+        new this.THREE.RingGeometry(radius, radius + 0.012, 128),
+        new this.THREE.MeshBasicMaterial({
+          color: "#3a4a63",
+          transparent: true,
+          opacity: 0.16 - index * 0.05,
+          side: this.THREE.DoubleSide,
+        }),
+      );
+      ring.rotation.x = -Math.PI / 2.15;
+      this.surfaceLayer.add(ring);
     });
   }
 
@@ -759,7 +779,7 @@ class MemoryObservatory {
       "wheel",
       (event) => {
         event.preventDefault();
-        this.camera.position.z = clamp(this.camera.position.z + event.deltaY * 0.008, 8.8, 20);
+        this.camera.position.z = clamp(this.camera.position.z + event.deltaY * 0.008, 5.4, 17);
       },
       { passive: false },
     );
@@ -783,7 +803,7 @@ class MemoryObservatory {
       node.userData.belief = belief;
       node.userData.index = index;
       node.userData.target = this.positionForBelief(belief, index, nextState.beliefs.length);
-      node.userData.baseScale = 0.76 + belief.confidence * 0.5;
+      node.userData.baseScale = 1.05 + belief.confidence * 0.8;
       node.userData.visibleByFilter = beliefMatchesFilter(belief);
       this.paintNode(node, belief);
       this.nodesById.set(belief.id, node);
@@ -844,24 +864,21 @@ class MemoryObservatory {
   }
 
   positionForBelief(belief, index, total) {
+    // Distribute beliefs on a spherical shell around the core (Fibonacci
+    // sphere), so even a few nodes form a legible constellation. Confidence
+    // pulls a belief inward; dormant beliefs drift to the outer shell.
     const hash = hashString(belief.id || `${belief.label}-${index}`);
-    const lane = {
-      active: -4.4,
-      restored: -2.2,
-      revised: 0,
-      contradiction: 2.2,
-      dormant: 4.4,
-    }[belief.status] ?? -4.4;
-    const rows = Math.max(1, Math.ceil(total / 5));
-    const slot = Math.floor(index / 5);
-    const rowSpread = rows > 1 ? (slot / (rows - 1) - 0.5) * 6.2 : 0;
-    const confidenceLift = 0.1 + belief.confidence * 1.55;
-    const dormantDrop = belief.status === "dormant" ? -0.28 : 0;
-    const conflictLift = belief.status === "contradiction" ? 0.28 : 0;
+    const golden = Math.PI * (3 - Math.sqrt(5));
+    const denom = Math.max(1, total - 1);
+    const y = total > 1 ? 1 - (index / denom) * 2 : 0;
+    const radiusAtY = Math.sqrt(Math.max(0.0001, 1 - y * y));
+    const theta = golden * index + hash * 0.0004;
+    const shell =
+      3.15 + (1 - belief.confidence) * 1.35 + (belief.status === "dormant" ? 1.15 : 0);
     return new this.THREE.Vector3(
-      lane + seededNoise(hash + 11, 0.56) - 0.28,
-      confidenceLift + dormantDrop + conflictLift + seededNoise(hash + 71, 0.18),
-      rowSpread + seededNoise(hash + 131, 0.52) - 0.26,
+      Math.cos(theta) * radiusAtY * shell,
+      y * 2.35 + (belief.status === "contradiction" ? 0.32 : 0) + seededNoise(hash + 41, 0.22) - 0.11,
+      Math.sin(theta) * radiusAtY * shell,
     );
   }
 
@@ -991,9 +1008,14 @@ class MemoryObservatory {
     }
     this.root.rotation.x = this.rotation.x;
     this.root.rotation.y = this.rotation.y;
-    this.core.rotation.y = Math.sin(elapsed * 0.22) * 0.035 * motion;
-    if (this.coreEdges) {
-      this.coreEdges.rotation.copy(this.core.rotation);
+    this.core.rotation.y += 0.0016 * motion + 0.0005;
+    this.core.rotation.x = Math.sin(elapsed * 0.3) * 0.08 * motion;
+    this.core.scale.setScalar(1 + Math.sin(elapsed * 1.1) * 0.03 * motion);
+    if (this.coreGlow) {
+      this.coreGlow.scale.setScalar(1 + Math.sin(elapsed * 0.9) * 0.05 * motion);
+    }
+    if (this.stars) {
+      this.stars.rotation.y += 0.0002;
     }
 
     this.nodesById.forEach((node) => {

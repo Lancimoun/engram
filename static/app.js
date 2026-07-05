@@ -1167,3 +1167,12 @@ window.addEventListener("resize", resizeCanvas);
 initializeObservatory();
 resizeCanvas();
 refreshState();
+
+// Keep the observatory live: re-pull ledger state on an interval so the map
+// reflects external writes (agents, other tabs) without a manual refresh.
+// Pause while the tab is hidden to avoid needless work.
+setInterval(() => {
+  if (!document.hidden) {
+    refreshState();
+  }
+}, 4000);

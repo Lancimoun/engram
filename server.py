@@ -16,6 +16,7 @@ STATIC_DIR = ROOT / "static"
 DB_PATH = Path(os.getenv("ENGRAM_DB_PATH", str(ROOT / "data" / "engram.sqlite3")))
 HOST = os.getenv("ENGRAM_HOST", "0.0.0.0" if os.getenv("PORT") else "127.0.0.1")
 PORT = int(os.getenv("PORT", os.getenv("ENGRAM_PORT", "8787")))
+MAX_BODY_BYTES = 64 * 1024  # reject oversized POST bodies (public-demo abuse guard)
 
 
 class EngramHandler(BaseHTTPRequestHandler):
@@ -75,13 +76,14 @@ class EngramHandler(BaseHTTPRequestHandler):
 
     def _payload(self) -> dict[str, object]:
         length = int(self.headers.get("Content-Length", "0") or "0")
-        if length == 0:
+        if length <= 0 or length > MAX_BODY_BYTES:
             return {}
         raw = self.rfile.read(length)
         try:
-            return json.loads(raw.decode("utf-8"))
-        except json.JSONDecodeError:
+            parsed = json.loads(raw.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
             return {}
+        return parsed if isinstance(parsed, dict) else {}
 
     def _json(self, payload: object, status: HTTPStatus = HTTPStatus.OK) -> None:
         body = json.dumps(payload, indent=2).encode("utf-8")

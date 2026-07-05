@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+import threading
 import uuid
 from contextlib import closing
 from dataclasses import dataclass
@@ -13,6 +14,12 @@ from typing import Any
 DORMANT_THRESHOLD = 0.25
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "beliefstore" / "schema.sql"
 
+# Schema is idempotent (CREATE TABLE IF NOT EXISTS), but re-reading and
+# re-executing it on every request wastes a file read per call. Initialize each
+# database path exactly once, guarded so concurrent first-requests can't race.
+_INIT_LOCK = threading.Lock()
+_INITIALIZED: set[str] = set()
+
 
 @dataclass(frozen=True)
 class BeliefCandidate:
@@ -22,23 +29,39 @@ class BeliefCandidate:
 
 
 def connect(db_path: str | Path) -> sqlite3.Connection:
-    conn = sqlite3.connect(str(db_path))
+    # ENGRAM is a memory-reliability tool, so its own ledger must never drop a
+    # write under concurrent load (the server is threaded — one thread per
+    # request). WAL lets readers and a writer proceed together, and busy_timeout
+    # makes a second writer wait for the lock instead of raising
+    # "database is locked". Together they turn concurrent writes into a queue,
+    # not a data-loss event.
+    conn = sqlite3.connect(str(db_path), timeout=5.0)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA busy_timeout = 5000")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA synchronous = NORMAL")
     return conn
 
 
-def init_db(db_path: str | Path) -> None:
-    path = Path(db_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with closing(connect(path)) as conn:
-        conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
-        conn.commit()
+def init_db(db_path: str | Path, *, force: bool = False) -> None:
+    key = str(Path(db_path).resolve())
+    if not force and key in _INITIALIZED:
+        return
+    with _INIT_LOCK:
+        if not force and key in _INITIALIZED:
+            return
+        path = Path(db_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with closing(connect(path)) as conn:
+            conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+            conn.commit()
+        _INITIALIZED.add(key)
 
 
 def reset_db(db_path: str | Path) -> None:
     path = Path(db_path)
-    init_db(path)
+    init_db(path, force=True)
     with closing(connect(path)) as conn:
         conn.execute("DELETE FROM events")
         conn.execute("DELETE FROM revisions")

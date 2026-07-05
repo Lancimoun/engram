@@ -84,16 +84,29 @@ Python server
 
 ## Run Locally
 
-```powershell
-& 'C:\Users\Lance\AppData\Local\Programs\Python\Python312\python.exe' -m unittest discover .\tests
-& 'C:\Users\Lance\AppData\Local\Programs\Python\Python312\python.exe' .\server.py
+No dependencies — ENGRAM V1 uses the Python standard library only (3.11+).
+
+```bash
+python -m unittest discover tests     # run the test suite
+python server.py                      # start the server
 ```
 
-Open:
+Then open http://127.0.0.1:8787 and click **Run ledger demo**.
 
-```text
-http://127.0.0.1:8787
-```
+## Reliability
+
+ENGRAM is a memory-accountability tool, so the one thing it must never do is
+silently lose its own writes. The server is threaded (one request per thread),
+so belief writes can land concurrently. The ledger defends against that:
+
+- SQLite runs in **WAL mode** with a **5s busy-timeout**, so concurrent writers
+  queue for the lock instead of failing with "database is locked".
+- `tests/test_concurrency.py` proves it: 24 threads writing distinct beliefs at
+  once lose **zero** records, and 16 racing revisions to one belief leave a
+  consistent, audit-complete ledger.
+
+A memory system that drops writes under load can't be trusted to explain what an
+agent believed — so that guarantee is tested, not assumed.
 
 ## API Contract
 

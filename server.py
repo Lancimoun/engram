@@ -123,6 +123,10 @@ class EngramHandler(BaseHTTPRequestHandler):
 
 def main() -> None:
     init_db(DB_PATH)
+    # Seed the demo ledger on an empty database so a fresh deploy opens on a
+    # populated observatory instead of an empty stage.
+    if not get_state(DB_PATH)["beliefs"]:
+        run_demo(DB_PATH)
     server = ThreadingHTTPServer((HOST, PORT), EngramHandler)
     print(f"ENGRAM running at http://{HOST}:{PORT}")
     server.serve_forever()

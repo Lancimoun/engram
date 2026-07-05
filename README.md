@@ -1,14 +1,24 @@
-# ENGRAM: Memory Reliability Ledger for AI Agents
+<div align="center">
 
-![status](https://img.shields.io/badge/status-V1%20prototype-5ed7bd)
-![runtime](https://img.shields.io/badge/runtime-Python%20%2B%20SQLite-85a8e6)
-![interface](https://img.shields.io/badge/interface-Three.js%20topology-d9a856)
+# 🧬 ENGRAM
 
-ENGRAM is an auditable memory layer for AI agents. It records what an agent
-believed, when that belief changed, what evidence caused the change, and which
-old value was superseded.
+### A memory-reliability ledger for AI agents
 
-Most memory systems optimize recall. ENGRAM optimizes accountability.
+Audit **what an agent believed, when it changed, what evidence triggered the revision, what decayed, and what was later restored** — rendered as a live 3D memory observatory.
+
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
+![Dependencies](https://img.shields.io/badge/dependencies-zero%20(stdlib)-5ed7bd?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-6%20passing-48bb78?style=flat-square)
+![Interface](https://img.shields.io/badge/interface-Three.js%20observatory-d9a856?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-85a8e6?style=flat-square)
+
+</div>
+
+> Most memory systems optimize recall. **ENGRAM optimizes accountability.**
+
+ENGRAM records what an agent believed, when that belief changed, what evidence
+caused the change, and which old value was superseded — turning hidden memory
+mutations into an inspectable audit trail.
 
 ## Why It Exists
 

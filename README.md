@@ -6,9 +6,11 @@
 
 Audit **what an agent believed, when it changed, what evidence triggered the revision, what decayed, and what was later restored** — rendered as a live 3D memory observatory.
 
+**▶ Live observatory:** https://engram-production-1a6b.up.railway.app
+
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Dependencies](https://img.shields.io/badge/dependencies-zero%20(stdlib)-5ed7bd?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-6%20passing-48bb78?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-13%20passing-48bb78?style=flat-square)
 ![Interface](https://img.shields.io/badge/interface-Three.js%20observatory-d9a856?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-85a8e6?style=flat-square)
 

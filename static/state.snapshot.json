@@ -1,0 +1,355 @@
+{
+  "beliefs": [
+    {
+      "id": "belief_9bb1ed7f1539",
+      "subject": "rate_limit",
+      "label": "API rate limit",
+      "value": "60 req/min",
+      "status": "active",
+      "score": 0.4,
+      "reinforcement_count": 1,
+      "contested": 1,
+      "created_at": "2026-07-05T00:00:01Z",
+      "last_seen_at": "2026-08-14T00:00:00Z",
+      "source_ref": "demo:config-note"
+    },
+    {
+      "id": "belief_ec767e11d5c0",
+      "subject": "deployment_method",
+      "label": "Deployment method",
+      "value": "Docker Compose",
+      "status": "active",
+      "score": 0.55,
+      "reinforcement_count": 1,
+      "contested": 0,
+      "created_at": "2026-07-05T00:00:02Z",
+      "last_seen_at": "2026-08-14T00:00:20Z",
+      "source_ref": "demo:ops-note"
+    },
+    {
+      "id": "belief_67e0a9f9cdfb",
+      "subject": "primary_model",
+      "label": "Primary model",
+      "value": "Frontier model",
+      "status": "active",
+      "score": 0.4,
+      "reinforcement_count": 1,
+      "contested": 1,
+      "created_at": "2026-07-05T00:00:03Z",
+      "last_seen_at": "2026-08-14T00:00:00Z",
+      "source_ref": "demo:model-change"
+    },
+    {
+      "id": "belief_d4c6801fe62b",
+      "subject": "budget",
+      "label": "Budget",
+      "value": "1500 PHP",
+      "status": "active",
+      "score": 0.4,
+      "reinforcement_count": 1,
+      "contested": 1,
+      "created_at": "2026-07-05T00:00:04Z",
+      "last_seen_at": "2026-08-14T00:00:00Z",
+      "source_ref": "demo:finance-q2"
+    },
+    {
+      "id": "belief_984e0e37106b",
+      "subject": "the_vector_database",
+      "label": "The Vector Database",
+      "value": "Qdrant",
+      "status": "dormant",
+      "score": 0.05,
+      "reinforcement_count": 2,
+      "contested": 0,
+      "created_at": "2026-07-05T00:00:05Z",
+      "last_seen_at": "2026-08-14T00:00:00Z",
+      "source_ref": "demo:infra-recheck"
+    },
+    {
+      "id": "belief_ae7727d49a93",
+      "subject": "the_auth_method",
+      "label": "The Auth Method",
+      "value": "OAuth tokens",
+      "status": "active",
+      "score": 0.4,
+      "reinforcement_count": 1,
+      "contested": 1,
+      "created_at": "2026-07-05T00:00:06Z",
+      "last_seen_at": "2026-08-14T00:00:00Z",
+      "source_ref": "demo:security-v2"
+    },
+    {
+      "id": "belief_591ae95d0caf",
+      "subject": "the_region",
+      "label": "The Region",
+      "value": "us-east",
+      "status": "dormant",
+      "score": 0.05,
+      "reinforcement_count": 1,
+      "contested": 0,
+      "created_at": "2026-07-05T00:00:07Z",
+      "last_seen_at": "2026-08-14T00:00:00Z",
+      "source_ref": "demo:infra-region"
+    }
+  ],
+  "revisions": [
+    {
+      "id": "rev_a6ad9c16b865",
+      "belief_id": "belief_9bb1ed7f1539",
+      "event_type": "REVISE",
+      "from_value": "100 req/min",
+      "to_value": "60 req/min",
+      "trigger": "contradiction",
+      "evidence_ref": "demo:config-note",
+      "reason": "New evidence changed API rate limit from 100 req/min to 60 req/min.",
+      "timestamp": "2026-07-05T00:00:08Z"
+    },
+    {
+      "id": "rev_0a2f5abdf143",
+      "belief_id": "belief_67e0a9f9cdfb",
+      "event_type": "REVISE",
+      "from_value": "Compact model",
+      "to_value": "Frontier model",
+      "trigger": "contradiction",
+      "evidence_ref": "demo:model-change",
+      "reason": "New evidence changed Primary model from Compact model to Frontier model.",
+      "timestamp": "2026-07-05T00:00:09Z"
+    },
+    {
+      "id": "rev_364f6383d5dd",
+      "belief_id": "belief_d4c6801fe62b",
+      "event_type": "REVISE",
+      "from_value": "2000 PHP",
+      "to_value": "1500 PHP",
+      "trigger": "contradiction",
+      "evidence_ref": "demo:finance-q2",
+      "reason": "New evidence changed Budget from 2000 PHP to 1500 PHP.",
+      "timestamp": "2026-07-05T00:00:10Z"
+    },
+    {
+      "id": "rev_03dce074007e",
+      "belief_id": "belief_ae7727d49a93",
+      "event_type": "REVISE",
+      "from_value": "API keys",
+      "to_value": "OAuth tokens",
+      "trigger": "contradiction",
+      "evidence_ref": "demo:security-v2",
+      "reason": "New evidence changed The Auth Method from API keys to OAuth tokens.",
+      "timestamp": "2026-07-05T00:00:11Z"
+    },
+    {
+      "id": "rev_fd2327ea827d",
+      "belief_id": "belief_ec767e11d5c0",
+      "event_type": "DECAY_DORMANT",
+      "from_value": "Docker Compose",
+      "to_value": "Docker Compose",
+      "trigger": "decay",
+      "evidence_ref": null,
+      "reason": "Deployment method fell below retrieval threshold at score 0.05.",
+      "timestamp": "2026-08-14T00:00:00Z"
+    },
+    {
+      "id": "rev_b0b7e64b7de9",
+      "belief_id": "belief_984e0e37106b",
+      "event_type": "DECAY_DORMANT",
+      "from_value": "Qdrant",
+      "to_value": "Qdrant",
+      "trigger": "decay",
+      "evidence_ref": null,
+      "reason": "The Vector Database fell below retrieval threshold at score 0.05.",
+      "timestamp": "2026-08-14T00:00:00Z"
+    },
+    {
+      "id": "rev_75585c4f3eca",
+      "belief_id": "belief_591ae95d0caf",
+      "event_type": "DECAY_DORMANT",
+      "from_value": "us-east",
+      "to_value": "us-east",
+      "trigger": "decay",
+      "evidence_ref": null,
+      "reason": "The Region fell below retrieval threshold at score 0.05.",
+      "timestamp": "2026-08-14T00:00:00Z"
+    },
+    {
+      "id": "rev_c6076f736e7f",
+      "belief_id": "belief_ec767e11d5c0",
+      "event_type": "RESTORE",
+      "from_value": "Docker Compose",
+      "to_value": "Docker Compose",
+      "trigger": "restore",
+      "evidence_ref": "query",
+      "reason": "Deployment method was restored by query.",
+      "timestamp": "2026-08-14T00:00:20Z"
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_06af30281259",
+      "event_type": "INGEST",
+      "belief_id": "belief_9bb1ed7f1539",
+      "subject": "rate_limit",
+      "detail": "API rate limit: 100 req/min",
+      "timestamp": "2026-07-05T00:00:01Z"
+    },
+    {
+      "id": "evt_d3fcd7052f65",
+      "event_type": "INGEST",
+      "belief_id": "belief_ec767e11d5c0",
+      "subject": "deployment_method",
+      "detail": "Deployment method: Docker Compose",
+      "timestamp": "2026-07-05T00:00:02Z"
+    },
+    {
+      "id": "evt_5d51c39cb12e",
+      "event_type": "INGEST",
+      "belief_id": "belief_67e0a9f9cdfb",
+      "subject": "primary_model",
+      "detail": "Primary model: Compact model",
+      "timestamp": "2026-07-05T00:00:03Z"
+    },
+    {
+      "id": "evt_2484f574fce5",
+      "event_type": "INGEST",
+      "belief_id": "belief_d4c6801fe62b",
+      "subject": "budget",
+      "detail": "Budget: 2000 PHP",
+      "timestamp": "2026-07-05T00:00:04Z"
+    },
+    {
+      "id": "evt_eeaa23cc130f",
+      "event_type": "INGEST",
+      "belief_id": "belief_984e0e37106b",
+      "subject": "the_vector_database",
+      "detail": "The Vector Database: Qdrant",
+      "timestamp": "2026-07-05T00:00:05Z"
+    },
+    {
+      "id": "evt_c1fa084ef330",
+      "event_type": "INGEST",
+      "belief_id": "belief_ae7727d49a93",
+      "subject": "the_auth_method",
+      "detail": "The Auth Method: API keys",
+      "timestamp": "2026-07-05T00:00:06Z"
+    },
+    {
+      "id": "evt_4862bae9b7fb",
+      "event_type": "INGEST",
+      "belief_id": "belief_591ae95d0caf",
+      "subject": "the_region",
+      "detail": "The Region: us-east",
+      "timestamp": "2026-07-05T00:00:07Z"
+    },
+    {
+      "id": "evt_c453f667f90c",
+      "event_type": "CONTRADICT",
+      "belief_id": "belief_9bb1ed7f1539",
+      "subject": "rate_limit",
+      "detail": "100 req/min -> 60 req/min",
+      "timestamp": "2026-07-05T00:00:08Z"
+    },
+    {
+      "id": "evt_826216451b88",
+      "event_type": "REVISE",
+      "belief_id": "belief_9bb1ed7f1539",
+      "subject": "rate_limit",
+      "detail": "New evidence changed API rate limit from 100 req/min to 60 req/min.",
+      "timestamp": "2026-07-05T00:00:08Z"
+    },
+    {
+      "id": "evt_4e1873e314b0",
+      "event_type": "CONTRADICT",
+      "belief_id": "belief_67e0a9f9cdfb",
+      "subject": "primary_model",
+      "detail": "Compact model -> Frontier model",
+      "timestamp": "2026-07-05T00:00:09Z"
+    },
+    {
+      "id": "evt_45479e1ee8ec",
+      "event_type": "REVISE",
+      "belief_id": "belief_67e0a9f9cdfb",
+      "subject": "primary_model",
+      "detail": "New evidence changed Primary model from Compact model to Frontier model.",
+      "timestamp": "2026-07-05T00:00:09Z"
+    },
+    {
+      "id": "evt_089c0f415fbf",
+      "event_type": "CONTRADICT",
+      "belief_id": "belief_d4c6801fe62b",
+      "subject": "budget",
+      "detail": "2000 PHP -> 1500 PHP",
+      "timestamp": "2026-07-05T00:00:10Z"
+    },
+    {
+      "id": "evt_521c04936a8b",
+      "event_type": "REVISE",
+      "belief_id": "belief_d4c6801fe62b",
+      "subject": "budget",
+      "detail": "New evidence changed Budget from 2000 PHP to 1500 PHP.",
+      "timestamp": "2026-07-05T00:00:10Z"
+    },
+    {
+      "id": "evt_2c2518ec38a9",
+      "event_type": "CONTRADICT",
+      "belief_id": "belief_ae7727d49a93",
+      "subject": "the_auth_method",
+      "detail": "API keys -> OAuth tokens",
+      "timestamp": "2026-07-05T00:00:11Z"
+    },
+    {
+      "id": "evt_c0f3407163fb",
+      "event_type": "REVISE",
+      "belief_id": "belief_ae7727d49a93",
+      "subject": "the_auth_method",
+      "detail": "New evidence changed The Auth Method from API keys to OAuth tokens.",
+      "timestamp": "2026-07-05T00:00:11Z"
+    },
+    {
+      "id": "evt_2f65343a4722",
+      "event_type": "REINFORCE",
+      "belief_id": "belief_984e0e37106b",
+      "subject": "the_vector_database",
+      "detail": "The Vector Database: Qdrant",
+      "timestamp": "2026-07-05T00:00:12Z"
+    },
+    {
+      "id": "evt_6058e2bae95b",
+      "event_type": "DECAY_DORMANT",
+      "belief_id": "belief_ec767e11d5c0",
+      "subject": "deployment_method",
+      "detail": "Deployment method fell below retrieval threshold at score 0.05.",
+      "timestamp": "2026-08-14T00:00:00Z"
+    },
+    {
+      "id": "evt_6ab2b3d55831",
+      "event_type": "DECAY_DORMANT",
+      "belief_id": "belief_984e0e37106b",
+      "subject": "the_vector_database",
+      "detail": "The Vector Database fell below retrieval threshold at score 0.05.",
+      "timestamp": "2026-08-14T00:00:00Z"
+    },
+    {
+      "id": "evt_f662a3364f1a",
+      "event_type": "DECAY_DORMANT",
+      "belief_id": "belief_591ae95d0caf",
+      "subject": "the_region",
+      "detail": "The Region fell below retrieval threshold at score 0.05.",
+      "timestamp": "2026-08-14T00:00:00Z"
+    },
+    {
+      "id": "evt_7e1331ba358e",
+      "event_type": "RESTORE",
+      "belief_id": "belief_ec767e11d5c0",
+      "subject": "deployment_method",
+      "detail": "Deployment method was restored by query.",
+      "timestamp": "2026-08-14T00:00:20Z"
+    }
+  ],
+  "metrics": {
+    "beliefs": 7,
+    "active": 5,
+    "dormant": 2,
+    "revisions": 8,
+    "contradictions": 4,
+    "provenance_completeness": 1.0
+  }
+}

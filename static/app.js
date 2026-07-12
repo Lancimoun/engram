@@ -228,10 +228,22 @@ async function refreshState() {
     state = normalizeState(payload);
     setApiStatus(true, "connected");
   } catch (error) {
-    setApiStatus(false, "offline");
+    // Backend unreachable: fall back to the baked read-only snapshot so the
+    // observatory still shows a populated scene instead of an empty stage.
+    await loadSnapshotFallback();
   }
   positionNodes();
   renderState();
+}
+
+async function loadSnapshotFallback() {
+  try {
+    const payload = await requestJson("/static/state.snapshot.json");
+    state = normalizeState(payload);
+    setApiStatus(false, "offline / read-only snapshot");
+  } catch (snapshotError) {
+    setApiStatus(false, "offline");
+  }
 }
 
 function setApiStatus(isOnline, text) {

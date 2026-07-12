@@ -103,6 +103,13 @@ python server.py                      # start the server
 
 Then open http://127.0.0.1:8787 and click **Run ledger demo**.
 
+### Public-deploy configuration
+
+| Env var | Default | Purpose |
+|---|---|---|
+| `ENGRAM_RATE_LIMIT_PER_MIN` | `30` | Per-IP sliding-window cap on all `POST` endpoints (429 over limit; `0` disables) |
+| `ENGRAM_ALLOW_RESET` | `1` | Set `0` on shared/public deployments so visitors can't wipe the ledger via `/api/demo/reset` (403) |
+
 ## Reliability
 
 ENGRAM is a memory-accountability tool, so the one thing it must never do is
@@ -114,6 +121,9 @@ so belief writes can land concurrently. The ledger defends against that:
 - `tests/test_concurrency.py` proves it: 24 threads writing distinct beliefs at
   once lose **zero** records, and 16 racing revisions to one belief leave a
   consistent, audit-complete ledger.
+- `tests/test_server_guards.py` proves the public surface holds: real HTTP
+  round-trips show write endpoints returning **429** past the per-IP limit and
+  `/api/demo/reset` returning **403** when disabled for shared deployments.
 
 A memory system that drops writes under load can't be trusted to explain what an
 agent believed — so that guarantee is tested, not assumed.

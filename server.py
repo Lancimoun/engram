@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 import mimetypes
 import os
+import threading
+import time
+from collections import defaultdict, deque
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -17,6 +20,45 @@ DB_PATH = Path(os.getenv("ENGRAM_DB_PATH", str(ROOT / "data" / "engram.sqlite3")
 HOST = os.getenv("ENGRAM_HOST", "0.0.0.0" if os.getenv("PORT") else "127.0.0.1")
 PORT = int(os.getenv("PORT", os.getenv("ENGRAM_PORT", "8787")))
 MAX_BODY_BYTES = 64 * 1024  # reject oversized POST bodies (public-demo abuse guard)
+RATE_LIMIT_PER_MIN = int(os.getenv("ENGRAM_RATE_LIMIT_PER_MIN", "30"))  # per client IP; 0 disables
+
+
+class RateLimiter:
+    """Per-client sliding-window limiter for the write endpoints (stdlib-only).
+
+    The server is threaded, so the window bookkeeping is guarded by a lock.
+    """
+
+    def __init__(self, limit_per_min: int) -> None:
+        self.limit = limit_per_min
+        self._hits: dict[str, deque[float]] = defaultdict(deque)
+        self._lock = threading.Lock()
+
+    def allow(self, client: str, now: float | None = None) -> bool:
+        if self.limit <= 0:
+            return True
+        now = time.monotonic() if now is None else now
+        cutoff = now - 60.0
+        with self._lock:
+            window = self._hits[client]
+            while window and window[0] <= cutoff:
+                window.popleft()
+            if len(window) >= self.limit:
+                return False
+            window.append(now)
+            # Bound memory on public deploys: drop clients whose window emptied.
+            if len(self._hits) > 4096:
+                for key in [k for k, v in self._hits.items() if not v]:
+                    del self._hits[key]
+            return True
+
+
+_LIMITER = RateLimiter(RATE_LIMIT_PER_MIN)
+
+
+def _reset_allowed() -> bool:
+    """Public deploys set ENGRAM_ALLOW_RESET=0 so visitors can't wipe the shared ledger."""
+    return os.getenv("ENGRAM_ALLOW_RESET", "1") != "0"
 
 
 class EngramHandler(BaseHTTPRequestHandler):
@@ -37,6 +79,9 @@ class EngramHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         path = urlparse(self.path).path
+        if not _LIMITER.allow(self.client_address[0]):
+            self._json({"error": "rate limit exceeded"}, HTTPStatus.TOO_MANY_REQUESTS)
+            return
         payload = self._payload()
 
         if path == "/api/ingest":
@@ -62,6 +107,9 @@ class EngramHandler(BaseHTTPRequestHandler):
             return
 
         if path == "/api/demo/reset":
+            if not _reset_allowed():
+                self._json({"error": "reset is disabled on this deployment"}, HTTPStatus.FORBIDDEN)
+                return
             self._json(reset_demo(DB_PATH))
             return
 

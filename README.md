@@ -126,6 +126,10 @@ so belief writes can land concurrently. The ledger defends against that:
 - `tests/test_server_guards.py` proves the public surface holds: real HTTP
   round-trips show write endpoints returning **429** past the per-IP limit and
   `/api/demo/reset` returning **403** when disabled for shared deployments.
+- **Offline never means empty:** if the backend is unreachable, the observatory
+  falls back to a baked read-only snapshot (`static/state.snapshot.json`,
+  regenerated via `scripts/bake_snapshot.py`) and says so in the status line —
+  proven by `tests/test_snapshot.py`.
 
 A memory system that drops writes under load can't be trusted to explain what an
 agent believed — so that guarantee is tested, not assumed.

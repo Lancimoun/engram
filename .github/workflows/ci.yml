@@ -1,0 +1,25 @@
+name: ENGRAM CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  stdlib-only:
+    # The README wears a badge reading "dependencies: zero (stdlib)" and states
+    # "ENGRAM V1 uses the Python standard library only (3.11+)". That was true
+    # because nobody had broken it yet, not because anything checked.
+    #
+    # This job installs NOTHING. That is the whole design: the first `pip
+    # install` anyone adds to make a test pass turns the badge into a lie, and
+    # this goes red the same day instead of years later when someone tries to
+    # run it on a bare box and discovers the claim rotted.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"  # the floor the README promises, not the newest
+
+      - name: Test suite on a bare interpreter — no pip, no network
+        run: python -m unittest discover tests -v

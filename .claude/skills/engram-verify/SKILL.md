@@ -13,7 +13,7 @@ Prove ENGRAM works at three levels: unit (unittest), process (server boots), pro
 python -m unittest discover tests
 ```
 
-Expect **all green** (15 tests as of 2026-07): belief-revision integrity, decay/restore, 24-thread concurrency (zero lost writes), public-surface guards (429 over rate limit, 403 on gated reset) proven over real HTTP, and snapshot bake/shape checks. Any failure: stop and fix first.
+Expect **all green** (20 tests as of 2026-07): belief-revision integrity, decay/restore, 24-thread concurrency (zero lost writes), public-surface guards (429 over rate limit, 403 on gated reset) proven over real HTTP, snapshot bake/shape checks, and cinematic surface/behavior-hook contracts. Any failure: stop and fix first.
 
 ## 2 · Boot the real server
 

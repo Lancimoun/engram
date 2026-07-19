@@ -9,16 +9,77 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="ENGRAM — AI Memory Reliability" />
     <meta property="og:description" content="A belief-revision ledger + live 3D observatory for AI agent memory." />
+    <meta property="og:url" content="https://engram-production-1a6b.up.railway.app/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://engram-production-1a6b.up.railway.app/" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0e13'/%3E%3Crect x='8' y='8' width='16' height='16' rx='4' fill='%235ed7bd'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <main class="app-shell">
-      <header class="command-bar" aria-label="ENGRAM controls">
+      <section class="evidence-hero" aria-labelledby="heroTitle">
+        <div class="hero-copy">
+          <div class="hero-kicker">
+            <span class="live-pulse" aria-hidden="true"></span>
+            <span>Memory reliability / Live evidence surface</span>
+          </div>
+          <h1 id="heroTitle">Every belief leaves an audit trail.</h1>
+          <p class="hero-lede">
+            ENGRAM turns hidden memory mutations into evidence you can inspect:
+            what an agent believed, which source changed it, what went dormant,
+            and what was restored.
+          </p>
+          <div class="hero-actions">
+            <a class="hero-action hero-action-primary" href="#observatory">Explore the live ledger</a>
+            <span class="hero-proof"><strong>24</strong> concurrent writers, zero lost records</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="memory-orbit orbit-outer">
+            <i class="orbit-node node-active"></i>
+            <i class="orbit-node node-revised"></i>
+          </div>
+          <div class="memory-orbit orbit-middle">
+            <i class="orbit-node node-restored"></i>
+            <i class="orbit-node node-conflict"></i>
+          </div>
+          <div class="memory-orbit orbit-inner"></div>
+          <div class="memory-core">
+            <span>Evidence ledger</span>
+            <strong>ENGRAM</strong>
+            <small>state-backed / live</small>
+          </div>
+          <span class="orbit-caption orbit-caption-a">belief recorded</span>
+          <span class="orbit-caption orbit-caption-b">source attached</span>
+          <span class="orbit-caption orbit-caption-c">revision preserved</span>
+        </div>
+
+        <ol class="evidence-chain" aria-label="ENGRAM reliability path">
+          <li data-stage="ingest">
+            <span>01</span>
+            <div><strong>Evidence arrives</strong><small>source + timestamp</small></div>
+          </li>
+          <li data-stage="belief">
+            <span>02</span>
+            <div><strong>Belief recorded</strong><small>value + confidence</small></div>
+          </li>
+          <li data-stage="revision">
+            <span>03</span>
+            <div><strong>Revision explained</strong><small>before → after</small></div>
+          </li>
+          <li data-stage="restore">
+            <span>04</span>
+            <div><strong>Memory restored</strong><small>query pressure + trail</small></div>
+          </li>
+        </ol>
+      </section>
+
+      <header id="observatory" class="command-bar" aria-label="ENGRAM controls">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"><span></span></span>
           <div>
-            <h1>ENGRAM</h1>
+            <span class="brand-name">ENGRAM</span>
             <p>AI memory reliability</p>
           </div>
         </div>

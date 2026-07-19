@@ -11,6 +11,7 @@ Audit **what an agent believed, when it changed, what evidence triggered the rev
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Dependencies](https://img.shields.io/badge/dependencies-zero%20(stdlib)-5ed7bd?style=flat-square)
 [![CI](https://github.com/Lancimoun/engram/actions/workflows/ci.yml/badge.svg)](https://github.com/Lancimoun/engram/actions/workflows/ci.yml)
+![Tests](https://img.shields.io/badge/tests-20%20verified-5ed7bd?style=flat-square)
 ![Interface](https://img.shields.io/badge/interface-Three.js%20observatory-d9a856?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-85a8e6?style=flat-square)
 
@@ -99,7 +100,7 @@ Python server
 No dependencies — ENGRAM V1 uses the Python standard library only (3.11+).
 
 ```bash
-python -m unittest discover tests     # run the test suite
+python -m unittest discover tests     # run all 20 tests
 python server.py                      # start the server
 ```
 

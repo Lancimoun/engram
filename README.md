@@ -11,7 +11,6 @@ Audit **what an agent believed, when it changed, what evidence triggered the rev
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Dependencies](https://img.shields.io/badge/dependencies-zero%20(stdlib)-5ed7bd?style=flat-square)
 [![CI](https://github.com/Lancimoun/engram/actions/workflows/ci.yml/badge.svg)](https://github.com/Lancimoun/engram/actions/workflows/ci.yml)
-![Tests](https://img.shields.io/badge/tests-20%20verified-5ed7bd?style=flat-square)
 ![Interface](https://img.shields.io/badge/interface-Three.js%20observatory-d9a856?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-85a8e6?style=flat-square)
 

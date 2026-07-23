@@ -3,12 +3,13 @@ name: ENGRAM CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   stdlib-only:
-    # The README wears a badge reading "dependencies: zero (stdlib)" and states
-    # "ENGRAM V1 uses the Python standard library only (3.11+)". That was true
-    # because nobody had broken it yet, not because anything checked.
+    # The README states that ENGRAM has zero Python packages and uses the
+    # standard library only (3.11+). That was true because nobody had broken it
+    # yet, not because anything checked.
     #
     # This job installs NOTHING. That is the whole design: the first `pip
     # install` anyone adds to make a test pass turns the badge into a lie, and
@@ -16,8 +17,8 @@ jobs:
     # run it on a bare box and discovers the claim rotted.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"  # the floor the README promises, not the newest
 

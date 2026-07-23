@@ -7,18 +7,27 @@ description: Verify ENGRAM actually works end-to-end — run the unittest suite 
 
 Prove ENGRAM works at three levels: unit (unittest), process (server boots), product (API answers with real ledger state).
 
-## 1 · Test suite (~3s, stdlib only, no dependencies)
+## 1 · Test suite (~3s, stdlib only, no Python packages)
 
 ```
 python -m unittest discover tests
 ```
 
-Expect **all green** (20 tests as of 2026-07): belief-revision integrity, decay/restore, 24-thread concurrency (zero lost writes), public-surface guards (429 over rate limit, 403 on gated reset) proven over real HTTP, snapshot bake/shape checks, and cinematic surface/behavior-hook contracts. Any failure: stop and fix first.
+Expect **all green** (22 tests as of 2026-07): belief-revision integrity, decay/restore, 24-thread concurrency (zero lost writes), public-surface guards (429 over rate limit, 403 on gated reset) proven over real HTTP, snapshot bake/shape checks, cinematic surface/behavior-hook contracts, real social-preview dimensions, and supported CI action runtimes. Any failure: stop and fix first.
 
 ## 2 · Boot the real server
 
+PowerShell:
+
+```powershell
+$env:ENGRAM_PORT = "8788"
+python server.py
 ```
-set ENGRAM_PORT=8788 && python server.py     # Windows (POSIX: ENGRAM_PORT=8788 python server.py)
+
+POSIX:
+
+```bash
+ENGRAM_PORT=8788 python server.py
 ```
 
 Run in the background; it prints `ENGRAM running at ...` and auto-seeds a demo ledger when the DB is empty, so a fresh boot is never blank. Use 8788 to avoid colliding with a dev instance on the default 8787.

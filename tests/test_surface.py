@@ -16,6 +16,9 @@ ROOT = Path(__file__).resolve().parents[1]
 INDEX = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
 STYLES = (ROOT / "static" / "styles.css").read_text(encoding="utf-8")
 APP = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
+README = (ROOT / "README.md").read_text(encoding="utf-8")
+CI = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+SOCIAL_CARD = ROOT / "static" / "engram-social-card.png"
 
 
 class PublicSurfaceTests(unittest.TestCase):
@@ -40,6 +43,44 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn(f'<link rel="canonical" href="{live_url}"', INDEX)
         self.assertIn(f'<meta property="og:url" content="{live_url}"', INDEX)
         self.assertIn('<meta name="twitter:card" content="summary_large_image"', INDEX)
+
+    def test_social_preview_is_a_real_large_card(self) -> None:
+        image_url = (
+            "https://engram-production-1a6b.up.railway.app/"
+            "static/engram-social-card.png"
+        )
+        alt = (
+            "A forensic evidence vault showing a sourced belief, its preserved "
+            "revision, a dormant memory, and a restoration path."
+        )
+        for metadata in (
+            f'<meta property="og:image" content="{image_url}"',
+            '<meta property="og:image:type" content="image/png"',
+            '<meta property="og:image:width" content="1200"',
+            '<meta property="og:image:height" content="630"',
+            f'<meta property="og:image:alt" content="{alt}"',
+            f'<meta name="twitter:image" content="{image_url}"',
+            f'<meta name="twitter:image:alt" content="{alt}"',
+        ):
+            self.assertIn(metadata, INDEX)
+
+        self.assertTrue(SOCIAL_CARD.is_file(), "social preview PNG is missing")
+        png = SOCIAL_CARD.read_bytes()
+        self.assertEqual(b"\x89PNG\r\n\x1a\n", png[:8])
+        dimensions = (
+            int.from_bytes(png[16:20], "big"),
+            int.from_bytes(png[20:24], "big"),
+        )
+        self.assertEqual((1200, 630), dimensions)
+        self.assertGreater(len(png), 100_000, "preview is suspiciously small")
+        self.assertIn("static/engram-social-card.png", README)
+
+    def test_ci_uses_supported_action_runtimes_and_has_manual_recovery(self) -> None:
+        self.assertIn("workflow_dispatch:", CI)
+        self.assertIn("actions/checkout@v5", CI)
+        self.assertIn("actions/setup-python@v6", CI)
+        self.assertNotIn("actions/checkout@v4", CI)
+        self.assertNotIn("actions/setup-python@v5", CI)
 
     def test_reduced_motion_has_an_explicit_visual_fallback(self) -> None:
         self.assertIn("@media (prefers-reduced-motion: reduce)", STYLES)

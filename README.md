@@ -103,7 +103,7 @@ No Python packages — ENGRAM V1's backend uses the Python standard library only
 and remains usable as a ledger console if that optional visual layer is absent.
 
 ```bash
-python -m unittest discover tests     # run all 22 tests
+python -m unittest discover tests     # run all 25 tests
 python server.py                      # start the server
 ```
 

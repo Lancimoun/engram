@@ -61,11 +61,47 @@ def _reset_allowed() -> bool:
     return os.getenv("ENGRAM_ALLOW_RESET", "1") != "0"
 
 
+def health(db_path) -> tuple[dict, HTTPStatus]:
+    """Liveness that actually reads the ledger, not a constant `ok`.
+
+    An endpoint that returns `{"status": "ok"}` unconditionally answers "is this
+    process running", which the HTTP response already told you. It cannot
+    distinguish a healthy service from one whose datastore is missing, locked, or
+    corrupt — so it reports green through exactly the outage worth reporting.
+
+    This opens the belief store and counts what is in it. If that fails, the
+    endpoint says so and returns 503, because "I could not check" is a third
+    answer and must never be filed as a pass.
+
+    Returns (payload, status) so the handler stays a thin router and this stays
+    testable without a socket.
+    """
+    try:
+        state = get_state(db_path)
+        return (
+            {
+                "status": "ok",
+                "service": "engram",
+                "beliefs": len(state.get("beliefs", [])),
+                "events": len(state.get("events", [])),
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as exc:                      # noqa: BLE001 -- reporting it IS the check
+        return (
+            {"status": "unhealthy", "service": "engram", "error": f"{type(exc).__name__}: {exc}"},
+            HTTPStatus.SERVICE_UNAVAILABLE,
+        )
+
+
 class EngramHandler(BaseHTTPRequestHandler):
     server_version = "Engram/0.1"
 
     def do_GET(self) -> None:
         path = urlparse(self.path).path
+        if path == "/health":
+            self._json(*health(DB_PATH))
+            return
         if path == "/api/state":
             self._json(get_state(DB_PATH))
             return

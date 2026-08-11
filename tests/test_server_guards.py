@@ -16,6 +16,7 @@ import threading
 import unittest
 import urllib.error
 import urllib.request
+from http import HTTPStatus
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 
@@ -112,3 +113,60 @@ class ServerGuardTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HealthEndpointTests(unittest.TestCase):
+    """`/health` must reflect the ledger, not merely that the process answered.
+
+    Added in iteration 242 after the loop's own fleet-maintenance job was found
+    checking `https://engram-production-1a6b.up.railway.app/health` -- an
+    endpoint that had never existed. Every run of that job would have reported
+    this service broken while it was serving perfectly.
+    """
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self._old_db = server.DB_PATH
+        server.DB_PATH = Path(self.tmp.name) / "engram.sqlite3"
+        reset_db(server.DB_PATH)
+        self.httpd = ThreadingHTTPServer(("127.0.0.1", 0), EngramHandler)
+        self.base = f"http://127.0.0.1:{self.httpd.server_address[1]}"
+        threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+
+    def tearDown(self) -> None:
+        self.httpd.shutdown()
+        self.httpd.server_close()
+        server.DB_PATH = self._old_db
+        self.tmp.cleanup()
+
+    def test_health_is_reachable_and_reports_ok(self) -> None:
+        with urllib.request.urlopen(f"{self.base}/health", timeout=10) as resp:
+            self.assertEqual(resp.status, 200)
+            body = json.loads(resp.read().decode("utf-8"))
+        self.assertEqual(body["status"], "ok")
+        self.assertEqual(body["service"], "engram")
+        # It reports what it counted, so a reader can tell a live ledger from an
+        # empty one rather than taking "ok" on faith.
+        self.assertIn("beliefs", body)
+        self.assertIn("events", body)
+
+    def test_health_fails_closed_when_the_ledger_cannot_be_read(self) -> None:
+        # The whole point: a constant `ok` would pass this test too, so the
+        # datastore must be genuinely unopenable.
+        #
+        # A non-existent nested path does NOT work -- `init_db` creates parent
+        # directories, so the first attempt at this test passed with status "ok"
+        # and proved nothing. Pointing at an existing DIRECTORY does: sqlite
+        # cannot open one as a database file.
+        payload, status = server.health(Path(self.tmp.name))
+        self.assertNotEqual(payload["status"], "ok")
+        self.assertEqual(payload["status"], "unhealthy")
+        self.assertEqual(status, HTTPStatus.SERVICE_UNAVAILABLE)
+        self.assertIn("error", payload)
+
+    def test_health_is_not_the_generic_not_found_route(self) -> None:
+        # It used to be. `/health` fell through to the 404 branch and returned
+        # {"error": "not found"} with a 404 -- indistinguishable from a dead app.
+        with urllib.request.urlopen(f"{self.base}/health", timeout=10) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+        self.assertNotIn("not found", json.dumps(body))

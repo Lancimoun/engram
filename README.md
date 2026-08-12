@@ -169,3 +169,9 @@ has a trigger, evidence reference, timestamp, and previous value.
 - Export machine-readable reliability reports
 - Add agent SDK adapters
 - Add public replay links for memory incidents
+
+---
+
+## Further reading
+
+[**Build an AI system that can be proven wrong**](https://lancimoun.github.io/writing/proven-wrong.html) — ENGRAM audits what an agent believed and when it changed its mind; this is the same idea applied to the agent doing the work, so its own claims can be graded later.
